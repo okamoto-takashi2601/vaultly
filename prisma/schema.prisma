@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  imageUrl  String?
+  plan      Plan     @default(FREE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  capsules         Capsule[]
+  receivedCapsules CapsuleRecipient[]
+  contributions    CapsuleContribution[]
+
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+}
+
+model Capsule {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  status      CapsuleStatus @default(DRAFT)
+  unlocksAt   DateTime
+  unlockedAt  DateTime?
+  isShared    Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  contents      CapsuleContent[]
+  recipients    CapsuleRecipient[]
+  contributions CapsuleContribution[]
+
+  schedulerJobId String?
+}
+
+model CapsuleContent {
+  id        String      @id @default(cuid())
+  type      ContentType
+  body      String?
+  mediaUrl  String?
+  mediaKey  String?
+  order     Int         @default(0)
+  createdAt DateTime    @default(now())
+
+  capsuleId String
+  capsule   Capsule @relation(fields: [capsuleId], references: [id], onDelete: Cascade)
+
+  authorId String?
+}
+
+model CapsuleRecipient {
+  id         String    @id @default(cuid())
+  email      String
+  notifiedAt DateTime?
+  openedAt   DateTime?
+  createdAt  DateTime  @default(now())
+
+  capsuleId String
+  capsule   Capsule @relation(fields: [capsuleId], references: [id], onDelete: Cascade)
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  @@unique([capsuleId, email])
+}
+
+model CapsuleContribution {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  capsuleId String
+  capsule   Capsule @relation(fields: [capsuleId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([capsuleId, userId])
+}
+
+enum Plan {
+  FREE
+  PERSONAL
+  FAMILY
+}
+
+enum CapsuleStatus {
+  DRAFT
+  LOCKED
+  UNLOCKED
+}
+
+enum ContentType {
+  TEXT
+  IMAGE
+  VIDEO
+  VOICE
+}
