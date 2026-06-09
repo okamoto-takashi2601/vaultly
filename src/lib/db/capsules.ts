@@ -17,26 +17,37 @@ export async function getCapsuleById(id: string, userId: string) {
   });
 }
 
+type MediaItem = { url: string; key: string; type: "IMAGE" | "VIDEO" };
+
 export async function createCapsule(data: {
   title: string;
-  body: string;
+  body?: string;
   unlocksAt: Date;
   authorId: string;
   recipients: string[];
+  media?: MediaItem[];
 }) {
   const prisma = await getPrisma();
+
+  const textContent = data.body
+    ? [{ type: "TEXT" as const, body: data.body, order: 0 }]
+    : [];
+
+  const mediaContent = (data.media ?? []).map((m, i) => ({
+    type: m.type,
+    mediaUrl: m.url,
+    mediaKey: m.key,
+    order: textContent.length + i,
+  }));
+
   return prisma.capsule.create({
     data: {
       title: data.title,
       status: "LOCKED",
       unlocksAt: data.unlocksAt,
       authorId: data.authorId,
-      contents: {
-        create: [{ type: "TEXT", body: data.body, order: 0 }],
-      },
-      recipients: {
-        create: data.recipients.map((email) => ({ email })),
-      },
+      contents: { create: [...textContent, ...mediaContent] },
+      recipients: { create: data.recipients.map((email) => ({ email })) },
     },
   });
 }

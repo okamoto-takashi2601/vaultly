@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Lock, Sparkles, Plus, X } from "lucide-react";
+import {
+  ArrowLeft, Lock, Sparkles, Plus, X, ImagePlus,
+  FileVideo, Loader2, CheckCircle2,
+} from "lucide-react";
 import Link from "next/link";
+import { useUploadThing } from "@/lib/uploadthing";
 
 const AI_PROMPTS = [
   "What are you most proud of right now?",
@@ -19,6 +23,8 @@ const AI_PROMPTS = [
   "Describe where you are in life in one sentence.",
 ];
 
+type MediaItem = { url: string; key: string; type: "IMAGE" | "VIDEO"; name: string; previewUrl?: string };
+
 export default function NewCapsulePage() {
   const router = useRouter();
   const [title, setTitle] = useState("");
@@ -26,7 +32,34 @@ export default function NewCapsulePage() {
   const [unlockDate, setUnlockDate] = useState("");
   const [recipients, setRecipients] = useState<string[]>([]);
   const [emailInput, setEmailInput] = useState("");
+  const [media, setMedia] = useState<MediaItem[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const { startUpload, isUploading } = useUploadThing("capsuleMedia", {
+    onClientUploadComplete: (res) => {
+      const items: MediaItem[] = res.map((f) => ({
+        url: f.ufsUrl,
+        key: f.key,
+        name: f.name,
+        type: f.type.startsWith("video/") ? "VIDEO" : "IMAGE",
+        previewUrl: f.type.startsWith("image/") ? f.ufsUrl : undefined,
+      }));
+      setMedia((prev) => [...prev, ...items]);
+    },
+  });
+
+  const handleFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files ?? []);
+      if (!files.length) return;
+      await startUpload(files);
+      e.target.value = "";
+    },
+    [startUpload],
+  );
+
+  const removeMedia = (key: string) =>
+    setMedia((prev) => prev.filter((m) => m.key !== key));
 
   const addRecipient = () => {
     const email = emailInput.trim();
@@ -36,16 +69,15 @@ export default function NewCapsulePage() {
     }
   };
 
-  const removeRecipient = (email: string) => {
+  const removeRecipient = (email: string) =>
     setRecipients((prev) => prev.filter((e) => e !== email));
-  };
 
-  const injectPrompt = (prompt: string) => {
+  const injectPrompt = (prompt: string) =>
     setBody((prev) => (prev ? `${prev}\n\n${prompt}\n` : `${prompt}\n`));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!body && media.length === 0) return;
     setLoading(true);
     try {
       const res = await fetch("/api/capsules", {
@@ -53,9 +85,10 @@ export default function NewCapsulePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
-          body,
+          body: body || undefined,
           unlocksAt: new Date(unlockDate).toISOString(),
           recipients,
+          media: media.map(({ url, key, type }) => ({ url, key, type })),
         }),
       });
       if (!res.ok) throw new Error("Failed to create capsule");
@@ -68,11 +101,11 @@ export default function NewCapsulePage() {
 
   const minDate = new Date();
   minDate.setDate(minDate.getDate() + 1);
-  const minDateStr = minDate.toISOString().split("T")[0];
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const minDateStr = `${minDate.getFullYear()}-${pad(minDate.getMonth() + 1)}-${pad(minDate.getDate())}T${pad(minDate.getHours())}:${pad(minDate.getMinutes())}`;
 
   return (
     <div className="p-6 md:p-8 max-w-2xl mx-auto w-full">
-      {/* Back */}
       <Link
         href="/dashboard"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
@@ -83,9 +116,7 @@ export default function NewCapsulePage() {
 
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Create a capsule</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Seal a message for the future.
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">Seal a message for the future.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -105,29 +136,21 @@ export default function NewCapsulePage() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="body">Message</Label>
-            <span className="text-xs text-muted-foreground">Text</span>
+            <span className="text-xs text-muted-foreground">Optional if you add photos/videos</span>
           </div>
           <Textarea
             id="body"
             placeholder="Write your message here..."
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            className="min-h-[200px] resize-y"
-            required
+            className="min-h-[160px] resize-y"
           />
-
-          {/* AI prompts */}
           <Card className="border-white/10 bg-white/5">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <span className="text-xs font-medium text-primary">
-                  AI Memory Enhancer
-                </span>
+                <span className="text-xs font-medium text-primary">AI Memory Enhancer</span>
               </div>
-              <p className="text-xs text-muted-foreground mb-3">
-                Add a prompt to make your capsule more meaningful:
-              </p>
               <div className="flex flex-wrap gap-2">
                 {AI_PROMPTS.map((prompt) => (
                   <button
@@ -144,12 +167,92 @@ export default function NewCapsulePage() {
           </Card>
         </div>
 
+        {/* Media upload */}
+        <div className="flex flex-col gap-3">
+          <Label>Photos &amp; Videos</Label>
+
+          {/* Previews */}
+          {media.length > 0 && (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {media.map((m) => (
+                <div
+                  key={m.key}
+                  className="relative aspect-square rounded-lg overflow-hidden border border-white/10 bg-[#22233a] group"
+                >
+                  {m.type === "IMAGE" && m.previewUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={m.previewUrl}
+                      alt={m.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-1 px-2">
+                      <FileVideo className="h-6 w-6 text-muted-foreground" />
+                      <span className="text-[10px] text-muted-foreground text-center line-clamp-2 leading-tight">
+                        {m.name}
+                      </span>
+                    </div>
+                  )}
+                  {/* Remove button */}
+                  <button
+                    type="button"
+                    onClick={() => removeMedia(m.key)}
+                    className="absolute top-1 right-1 h-5 w-5 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                  {/* Uploaded check */}
+                  <div className="absolute bottom-1 left-1">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-400 drop-shadow" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Upload button */}
+          <label
+            className={[
+              "flex items-center justify-center gap-2 rounded-xl border border-dashed border-white/15 py-5 px-4 cursor-pointer transition-colors",
+              isUploading
+                ? "opacity-60 pointer-events-none"
+                : "hover:border-primary/40 hover:bg-white/5",
+            ].join(" ")}
+          >
+            <input
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              className="sr-only"
+              onChange={handleFileChange}
+              disabled={isUploading}
+            />
+            {isUploading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Uploading...</span>
+              </>
+            ) : (
+              <>
+                <ImagePlus className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  Add photos or videos
+                </span>
+                <span className="text-xs text-muted-foreground/60">
+                  · Images up to 8 MB, videos up to 256 MB
+                </span>
+              </>
+            )}
+          </label>
+        </div>
+
         {/* Unlock date */}
         <div className="flex flex-col gap-2">
           <Label htmlFor="unlockDate">Unlock date</Label>
           <Input
             id="unlockDate"
-            type="date"
+            type="datetime-local"
             min={minDateStr}
             value={unlockDate}
             onChange={(e) => setUnlockDate(e.target.value)}
@@ -157,7 +260,7 @@ export default function NewCapsulePage() {
             className="[color-scheme:dark]"
           />
           <p className="text-xs text-muted-foreground">
-            Recipients will be notified when the capsule unlocks on this date.
+            Recipients will be notified when the capsule unlocks at this exact date and time.
           </p>
         </div>
 
@@ -179,11 +282,7 @@ export default function NewCapsulePage() {
           {recipients.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-1">
               {recipients.map((email) => (
-                <Badge
-                  key={email}
-                  variant="secondary"
-                  className="gap-1.5 pr-1.5"
-                >
+                <Badge key={email} variant="secondary" className="gap-1.5 pr-1.5">
                   {email}
                   <button
                     type="button"
@@ -196,27 +295,16 @@ export default function NewCapsulePage() {
               ))}
             </div>
           )}
-          <p className="text-xs text-muted-foreground">
-            Leave empty to send only to yourself.
-          </p>
+          <p className="text-xs text-muted-foreground">Leave empty to send only to yourself.</p>
         </div>
 
         {/* Submit */}
         <div className="flex items-center gap-3 pt-2">
-          <Button
-            type="submit"
-            disabled={loading}
-            className="gap-2"
-          >
+          <Button type="submit" disabled={loading || isUploading} className="gap-2">
             <Lock className="h-4 w-4" />
             {loading ? "Sealing..." : "Seal capsule"}
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            nativeButton={false}
-            render={<Link href="/dashboard" />}
-          >
+          <Button type="button" variant="ghost" nativeButton={false} render={<Link href="/dashboard" />}>
             Cancel
           </Button>
         </div>

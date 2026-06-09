@@ -130,3 +130,13 @@
   }
 }
 
+/* Clerk: force readable text on dark background */
+.cl-headerTitle { color: #f5f2eb !important; }
+.cl-headerSubtitle { color: #d0cde0 !important; }
+.cl-formFieldLabel { color: #d0cde0 !important; }
+.cl-dividerText { color: #d0cde0 !important; }
+.cl-footerActionText { color: #d0cde0 !important; }
+.cl-footerActionLink { color: #d9b76e !important; }
+.cl-identityPreviewText { color: #d0cde0 !important; }
+.cl-formButtonPrimary { background-color: #d9b76e !important; }
+

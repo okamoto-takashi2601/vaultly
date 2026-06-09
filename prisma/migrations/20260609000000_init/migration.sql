@@ -1,5 +1,4 @@
--- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE IF NOT EXISTS "User" (
     "id" TEXT NOT NULL,
     "clerkId" TEXT NOT NULL,
     "email" TEXT NOT NULL,
@@ -15,8 +14,7 @@ CREATE TABLE "User" (
     CONSTRAINT "User_plan_check" CHECK ("plan" IN ('FREE', 'PERSONAL', 'FAMILY'))
 );
 
--- CreateTable
-CREATE TABLE "Capsule" (
+CREATE TABLE IF NOT EXISTS "Capsule" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
@@ -33,8 +31,7 @@ CREATE TABLE "Capsule" (
     CONSTRAINT "Capsule_status_check" CHECK ("status" IN ('DRAFT', 'LOCKED', 'UNLOCKED'))
 );
 
--- CreateTable
-CREATE TABLE "CapsuleContent" (
+CREATE TABLE IF NOT EXISTS "CapsuleContent" (
     "id" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "body" TEXT,
@@ -49,8 +46,7 @@ CREATE TABLE "CapsuleContent" (
     CONSTRAINT "CapsuleContent_type_check" CHECK ("type" IN ('TEXT', 'IMAGE', 'VIDEO', 'VOICE'))
 );
 
--- CreateTable
-CREATE TABLE "CapsuleRecipient" (
+CREATE TABLE IF NOT EXISTS "CapsuleRecipient" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "notifiedAt" TIMESTAMP(3),
@@ -62,8 +58,7 @@ CREATE TABLE "CapsuleRecipient" (
     CONSTRAINT "CapsuleRecipient_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "CapsuleContribution" (
+CREATE TABLE IF NOT EXISTS "CapsuleContribution" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "capsuleId" TEXT NOT NULL,
@@ -72,32 +67,22 @@ CREATE TABLE "CapsuleContribution" (
     CONSTRAINT "CapsuleContribution_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "User_clerkId_key" ON "User"("clerkId");
+CREATE UNIQUE INDEX ASYNC IF NOT EXISTS "User_clerkId_key" ON "User"("clerkId");
 
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+CREATE UNIQUE INDEX ASYNC IF NOT EXISTS "User_email_key" ON "User"("email");
 
--- CreateIndex
-CREATE UNIQUE INDEX "CapsuleRecipient_capsuleId_email_key" ON "CapsuleRecipient"("capsuleId", "email");
+CREATE UNIQUE INDEX ASYNC IF NOT EXISTS "CapsuleRecipient_capsuleId_email_key" ON "CapsuleRecipient"("capsuleId", "email");
 
--- CreateIndex
-CREATE UNIQUE INDEX "CapsuleContribution_capsuleId_userId_key" ON "CapsuleContribution"("capsuleId", "userId");
+CREATE UNIQUE INDEX ASYNC IF NOT EXISTS "CapsuleContribution_capsuleId_userId_key" ON "CapsuleContribution"("capsuleId", "userId");
 
--- AddForeignKey
-ALTER TABLE "Capsule" ADD CONSTRAINT "Capsule_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+CREATE INDEX ASYNC IF NOT EXISTS "Capsule_authorId_idx" ON "Capsule"("authorId");
 
--- AddForeignKey
-ALTER TABLE "CapsuleContent" ADD CONSTRAINT "CapsuleContent_capsuleId_fkey" FOREIGN KEY ("capsuleId") REFERENCES "Capsule"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+CREATE INDEX ASYNC IF NOT EXISTS "CapsuleContent_capsuleId_idx" ON "CapsuleContent"("capsuleId");
 
--- AddForeignKey
-ALTER TABLE "CapsuleRecipient" ADD CONSTRAINT "CapsuleRecipient_capsuleId_fkey" FOREIGN KEY ("capsuleId") REFERENCES "Capsule"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+CREATE INDEX ASYNC IF NOT EXISTS "CapsuleRecipient_capsuleId_idx" ON "CapsuleRecipient"("capsuleId");
 
--- AddForeignKey
-ALTER TABLE "CapsuleRecipient" ADD CONSTRAINT "CapsuleRecipient_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+CREATE INDEX ASYNC IF NOT EXISTS "CapsuleRecipient_userId_idx" ON "CapsuleRecipient"("userId");
 
--- AddForeignKey
-ALTER TABLE "CapsuleContribution" ADD CONSTRAINT "CapsuleContribution_capsuleId_fkey" FOREIGN KEY ("capsuleId") REFERENCES "Capsule"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+CREATE INDEX ASYNC IF NOT EXISTS "CapsuleContribution_capsuleId_idx" ON "CapsuleContribution"("capsuleId");
 
--- AddForeignKey
-ALTER TABLE "CapsuleContribution" ADD CONSTRAINT "CapsuleContribution_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+CREATE INDEX ASYNC IF NOT EXISTS "CapsuleContribution_userId_idx" ON "CapsuleContribution"("userId");

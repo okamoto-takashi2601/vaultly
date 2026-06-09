@@ -1,10 +1,13 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Lock, Unlock, Users, Calendar } from "lucide-react";
+import { ArrowLeft, Unlock, Users, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { CapsuleLockedView } from "@/components/capsule-countdown";
+import { ShareButtons } from "@/components/share-buttons";
+import { DeleteCapsuleButton } from "@/components/delete-capsule-button";
 import { getOrCreateUser } from "@/lib/db/users";
 import { getCapsuleById } from "@/lib/db/capsules";
 
@@ -23,8 +26,25 @@ export default async function CapsuleDetailPage({
   const capsule = await getCapsuleById(id, user.id);
   if (!capsule) notFound();
 
-  const isLocked = capsule.status === "LOCKED";
+  const now = new Date();
+  const unlocksAt = new Date(capsule.unlocksAt);
+  const isLocked = capsule.status !== "UNLOCKED" && unlocksAt > now;
 
+  if (isLocked) {
+    return (
+      <CapsuleLockedView
+        capsuleId={capsule.id}
+        shareUrl={`${process.env.NEXT_PUBLIC_APP_URL}/capsules/${capsule.id}`}
+        title={capsule.title}
+        description={capsule.description}
+        unlocksAt={unlocksAt}
+        createdAt={new Date(capsule.createdAt)}
+        recipients={capsule.recipients.map((r) => ({ id: r.id, email: r.email }))}
+      />
+    );
+  }
+
+  // Unlocked view
   return (
     <div className="p-6 md:p-8 max-w-2xl mx-auto w-full">
       <Link
@@ -38,85 +58,96 @@ export default async function CapsuleDetailPage({
       <div className="flex items-start justify-between gap-4 mb-8">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{capsule.title}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Created{" "}
-            {new Date(capsule.createdAt).toLocaleDateString("en", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
+          {capsule.description && (
+            <p className="text-sm text-muted-foreground mt-1">{capsule.description}</p>
+          )}
         </div>
-        {isLocked ? (
-          <Badge variant="secondary" className="gap-1 shrink-0">
-            <Lock className="h-3 w-3" /> Locked
-          </Badge>
-        ) : (
-          <Badge className="gap-1 shrink-0 bg-primary/20 text-primary border-primary/30">
+        <div className="flex items-center gap-2 shrink-0">
+          <Badge className="gap-1 bg-emerald-400/15 text-emerald-200 border-emerald-400/25">
             <Unlock className="h-3 w-3" /> Unlocked
           </Badge>
-        )}
+          <DeleteCapsuleButton capsuleId={capsule.id} />
+        </div>
       </div>
 
-      {isLocked && (
-        <Card className="border-white/10 bg-[#22233a] mb-6">
-          <CardContent className="p-6 flex flex-col items-center text-center gap-3">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 border border-primary/20">
-              <Lock className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="font-semibold">This capsule is sealed</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Opens on{" "}
-                <span className="text-foreground font-medium">
-                  {new Date(capsule.unlocksAt).toLocaleDateString("en", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </span>
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Text contents */}
+      {capsule.contents
+        .filter((c) => c.type === "TEXT")
+        .map((content) => (
+          <Card key={content.id} className="border-white/10 bg-[#22233a] mb-4">
+            <CardContent className="p-6">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">{content.body}</p>
+            </CardContent>
+          </Card>
+        ))}
+
+      {/* Media grid */}
+      {capsule.contents.some((c) => c.type === "IMAGE" || c.type === "VIDEO") && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+          {capsule.contents
+            .filter((c) => c.type === "IMAGE" || c.type === "VIDEO")
+            .map((content) => (
+              <div
+                key={content.id}
+                className="relative rounded-xl overflow-hidden border border-white/10 bg-[#22233a]"
+              >
+                {content.type === "IMAGE" && content.mediaUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={content.mediaUrl}
+                    alt=""
+                    className="w-full aspect-square object-cover"
+                  />
+                )}
+                {content.type === "VIDEO" && content.mediaUrl && (
+                  <video
+                    src={content.mediaUrl}
+                    controls
+                    className="w-full aspect-video"
+                  />
+                )}
+              </div>
+            ))}
+        </div>
       )}
 
-      {!isLocked && capsule.contents.map((content) => (
-        <Card key={content.id} className="border-white/10 bg-[#22233a] mb-4">
-          <CardContent className="p-6">
-            {content.type === "TEXT" && (
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">{content.body}</p>
-            )}
-          </CardContent>
-        </Card>
-      ))}
+      <Separator className="bg-white/10 my-6" />
 
-      <Separator className="bg-white/10 mb-6" />
-
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-3 text-sm">
+      <div className="flex flex-col gap-4 text-sm">
+        <div className="flex items-center gap-3">
           <Calendar className="h-4 w-4 text-muted-foreground" />
-          <span className="text-muted-foreground">Unlocks</span>
+          <span className="text-muted-foreground">Opened</span>
           <span>
-            {new Date(capsule.unlocksAt).toLocaleDateString("en", {
+            {unlocksAt.toLocaleDateString("en", {
               year: "numeric",
               month: "long",
               day: "numeric",
             })}
           </span>
         </div>
-        <div className="flex items-start gap-3 text-sm">
-          <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
-          <div>
-            <span className="text-muted-foreground">
-              {capsule.recipients.length > 0 ? "Recipients" : "Only you"}
-            </span>
-            <div className="flex flex-col gap-1 mt-1">
+        {capsule.recipients.length > 0 && (
+          <div className="flex items-start gap-3">
+            <Users className="h-4 w-4 text-muted-foreground mt-0.5" />
+            <div className="flex flex-wrap gap-2">
               {capsule.recipients.map((r) => (
-                <span key={r.id}>{r.email}</span>
+                <span
+                  key={r.id}
+                  className="rounded-full border border-white/10 bg-[#22233a] px-3 py-0.5 text-xs"
+                >
+                  {r.email}
+                </span>
               ))}
             </div>
           </div>
+        )}
+
+        <div className="pt-2">
+          <p className="text-xs text-muted-foreground mb-2">Share this capsule</p>
+          <ShareButtons
+            url={`${process.env.NEXT_PUBLIC_APP_URL}/capsules/${capsule.id}`}
+            title={capsule.title}
+            isLocked={false}
+          />
         </div>
       </div>
     </div>

@@ -26,7 +26,7 @@ export default async function DashboardLayout({
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <Lock className="h-4 w-4" />
           </div>
-          <span className="text-lg font-semibold tracking-tight">Vaultly</span>
+          <span className="text-lg font-semibold tracking-tight">Laterloom</span>
         </Link>
 
         <nav className="flex flex-col gap-1 flex-1">
@@ -54,7 +54,7 @@ export default async function DashboardLayout({
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <Lock className="h-3 w-3" />
           </div>
-          <span className="font-semibold">Vaultly</span>
+          <span className="font-semibold">Laterloom</span>
         </Link>
         <UserButton  />
       </div>

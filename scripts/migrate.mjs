@@ -64,10 +64,12 @@ for (const folder of folders) {
 
   console.log(`▶  Applying ${folder}...`);
   // Aurora DSQL: each DDL must run in its own autocommit transaction
-  const statements = sql
+  // Strip -- comments before splitting so comment-prefixed statements aren't skipped
+  const stripped = sql.replace(/--[^\n]*/g, "");
+  const statements = stripped
     .split(";")
     .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith("--"));
+    .filter((s) => s.length > 0);
 
   for (const stmt of statements) {
     console.log(`   → ${stmt.slice(0, 60).replace(/\n/g, " ")}...`);

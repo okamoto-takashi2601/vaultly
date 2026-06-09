@@ -95,7 +95,7 @@ export default function LandingPage() {
             <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <Lock className="h-4 w-4" />
             </span>
-            Vaultly
+            Laterloom
           </span>
           <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
             <a href="#how-it-works" className="hover:text-foreground transition-colors">
@@ -329,7 +329,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-border/60 py-8">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-muted-foreground/70 sm:flex-row">
-          <span>© 2026 Vaultly. All rights reserved.</span>
+          <span>© 2026 Laterloom. All rights reserved.</span>
           <div className="flex gap-6">
             <a href="#" className="transition-colors hover:text-foreground">
               Privacy

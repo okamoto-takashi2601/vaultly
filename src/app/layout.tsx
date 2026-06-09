@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vaultly — Seal today. Open tomorrow.",
+  title: "Laterloom — Seal today. Open tomorrow.",
   description: "Create time capsules for your future self and loved ones.",
 };
 
