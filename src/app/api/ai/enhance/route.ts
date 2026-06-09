@@ -14,17 +14,27 @@ export async function POST(req: Request) {
   if (!prompt) return NextResponse.json({ error: "No prompt" }, { status: 400 });
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash-lite",
+    generationConfig: { maxOutputTokens: 300 },
+  });
 
   const input = `You are helping someone write a heartfelt time capsule message sealed for months or years.
 
 Reflection prompt: "${prompt}"
 ${currentBody ? `Their current draft:\n"${currentBody}"` : "No draft yet."}
 
-Write a personal, emotional response (2-3 paragraphs) in first person. Be specific and vivid, not generic. Capture this moment in time. Don't include the question itself.`;
+Write a personal, emotional response (1-2 short paragraphs, max 150 words) in first person. Be specific and vivid. Don't include the question itself.`;
 
-  const result = await model.generateContent(input);
-  const text = result.response.text();
-
-  return NextResponse.json({ text });
+  try {
+    const result = await model.generateContent(input);
+    const text = result.response.text();
+    return NextResponse.json({ text });
+  } catch (err: unknown) {
+    const status = (err as { status?: number }).status;
+    if (status === 429) {
+      return NextResponse.json({ error: "Rate limited" }, { status: 429 });
+    }
+    throw err;
+  }
 }

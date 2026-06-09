@@ -82,8 +82,8 @@ export default function NewCapsulePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, currentBody: body }),
       });
-      if (res.status === 503) {
-        // AI not configured — fall back to injecting the prompt text
+      if (res.status === 503 || res.status === 429) {
+        // Not configured or rate limited — insert prompt as writing guide
         setBody((prev) => (prev ? `${prev}\n\n${prompt}\n` : `${prompt}\n`));
         return;
       }
@@ -91,7 +91,6 @@ export default function NewCapsulePage() {
       const data = await res.json();
       setBody(data.text);
     } catch {
-      // On any error fall back to injecting the prompt text
       setBody((prev) => (prev ? `${prev}\n\n${prompt}\n` : `${prompt}\n`));
     } finally {
       setAiLoading(null);
