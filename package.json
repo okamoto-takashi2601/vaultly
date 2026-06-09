@@ -6,7 +6,9 @@
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=4096 next dev",
     "build": "prisma generate && cross-env NODE_OPTIONS=--max-old-space-size=4096 next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "migrate": "node scripts/migrate.mjs",
+    "migrate:dev": "node scripts/migrate.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.102.0",
@@ -14,6 +16,7 @@
     "@aws-sdk/client-s3": "^3.1063.0",
     "@aws-sdk/client-scheduler": "^3.1063.0",
     "@aws-sdk/client-sesv2": "^3.1063.0",
+    "@aws-sdk/dsql-signer": "^3.1064.0",
     "@aws-sdk/s3-request-presigner": "^3.1063.0",
     "@base-ui/react": "^1.5.0",
     "@clerk/nextjs": "^7.4.3",

@@ -13,7 +13,7 @@ model User {
   email     String   @unique
   name      String?
   imageUrl  String?
-  plan      Plan     @default(FREE)
+  plan      String   @default("FREE")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -29,7 +29,7 @@ model Capsule {
   id          String        @id @default(cuid())
   title       String
   description String?
-  status      CapsuleStatus @default(DRAFT)
+  status      String        @default("DRAFT")
   unlocksAt   DateTime
   unlockedAt  DateTime?
   isShared    Boolean       @default(false)
@@ -48,7 +48,7 @@ model Capsule {
 
 model CapsuleContent {
   id        String      @id @default(cuid())
-  type      ContentType
+  type      String
   body      String?
   mediaUrl  String?
   mediaKey  String?
@@ -90,21 +90,4 @@ model CapsuleContribution {
   @@unique([capsuleId, userId])
 }
 
-enum Plan {
-  FREE
-  PERSONAL
-  FAMILY
-}
-
-enum CapsuleStatus {
-  DRAFT
-  LOCKED
-  UNLOCKED
-}
-
-enum ContentType {
-  TEXT
-  IMAGE
-  VIDEO
-  VOICE
-}
+// Aurora DSQL does not support PostgreSQL enums — using String with app-level validation
