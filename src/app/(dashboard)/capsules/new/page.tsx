@@ -47,9 +47,23 @@ export default function NewCapsulePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // TODO: call API route to save capsule
-    await new Promise((r) => setTimeout(r, 800));
-    router.push("/dashboard");
+    try {
+      const res = await fetch("/api/capsules", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          body,
+          unlocksAt: new Date(unlockDate).toISOString(),
+          recipients,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to create capsule");
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      setLoading(false);
+    }
   };
 
   const minDate = new Date();
