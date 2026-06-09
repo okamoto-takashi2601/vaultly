@@ -106,10 +106,10 @@ export default function LandingPage() {
             </a>
           </nav>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" render={<Link href="/sign-in" />}>
+            <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/sign-in" />}>
               Sign in
             </Button>
-            <Button size="sm" render={<Link href="/sign-up" />}>
+            <Button size="sm" nativeButton={false} render={<Link href="/sign-up" />}>
               Get started
             </Button>
           </div>
@@ -145,7 +145,7 @@ export default function LandingPage() {
               choose.
             </p>
             <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
-              <Button size="lg" className="group px-8" render={<Link href="/sign-up" />}>
+              <Button size="lg" className="group px-8" nativeButton={false} render={<Link href="/sign-up" />}>
                 Create your first capsule
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Button>
@@ -153,7 +153,7 @@ export default function LandingPage() {
                 size="lg"
                 variant="outline"
                 className="border-border/60 bg-card/40 px-8 backdrop-blur-sm"
-                render={<a href="#how-it-works" />}
+                nativeButton={false} render={<a href="#how-it-works" />}
               >
                 See how it works
               </Button>
@@ -289,7 +289,7 @@ export default function LandingPage() {
                   <Button
                     className="w-full"
                     variant={plan.highlight ? "default" : "outline"}
-                    render={<Link href="/sign-up" />}
+                    nativeButton={false} render={<Link href="/sign-up" />}
                   >
                     {plan.cta}
                   </Button>
@@ -318,7 +318,7 @@ export default function LandingPage() {
               Create your first capsule in minutes. The best time to start is
               today.
             </p>
-            <Button size="lg" className="group mt-8 px-8" render={<Link href="/sign-up" />}>
+            <Button size="lg" className="group mt-8 px-8" nativeButton={false} render={<Link href="/sign-up" />}>
               Create your first capsule — it&apos;s free
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
