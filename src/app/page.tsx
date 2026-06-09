@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   Lock,
   Unlock,
@@ -13,6 +12,7 @@ import {
   GraduationCap,
   Baby,
   Check,
+  ArrowRight,
 } from "lucide-react";
 
 const steps = [
@@ -87,16 +87,25 @@ const plans = [
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-white text-zinc-900">
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
       {/* Nav */}
-      <header className="sticky top-0 z-50 border-b border-zinc-100 bg-white/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto max-w-6xl px-6 flex h-16 items-center justify-between">
-          <span className="text-xl font-semibold tracking-tight">Vaultly</span>
-          <nav className="hidden md:flex items-center gap-8 text-sm text-zinc-600">
-            <a href="#how-it-works" className="hover:text-zinc-900 transition-colors">How it works</a>
-            <a href="#pricing" className="hover:text-zinc-900 transition-colors">Pricing</a>
+          <span className="flex items-center gap-2 text-xl font-semibold tracking-tight font-heading">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <Lock className="h-4 w-4" />
+            </span>
+            Vaultly
+          </span>
+          <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
+            <a href="#how-it-works" className="hover:text-foreground transition-colors">
+              How it works
+            </a>
+            <a href="#pricing" className="hover:text-foreground transition-colors">
+              Pricing
+            </a>
           </nav>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" render={<Link href="/sign-in" />}>
               Sign in
             </Button>
@@ -109,119 +118,170 @@ export default function LandingPage() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="mx-auto max-w-6xl px-6 py-28 text-center">
-          <Badge variant="secondary" className="mb-6 text-xs font-medium">
-            Built for the moments that matter
-          </Badge>
-          <h1 className="text-5xl font-bold tracking-tight leading-tight md:text-6xl lg:text-7xl">
-            Seal today.
-            <br />
-            <span className="text-zinc-400">Open tomorrow.</span>
-          </h1>
-          <p className="mt-6 text-lg text-zinc-500 max-w-xl mx-auto leading-relaxed">
-            Create time capsules for your future self and loved ones — letters,
-            photos, videos, and voice messages delivered on the exact day you
-            choose.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="px-8" render={<Link href="/sign-up" />}>
-              Create your first capsule
-            </Button>
-            <Button size="lg" variant="outline" className="px-8" render={<a href="#how-it-works" />}>
-              See how it works
-            </Button>
+        <section className="relative overflow-hidden">
+          {/* ambient glow */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[480px] w-[820px] -translate-x-1/2 rounded-full bg-primary/15 blur-[120px]"
+          />
+          <div className="mx-auto max-w-6xl px-6 py-28 text-center md:py-36">
+            <Badge
+              variant="outline"
+              className="mb-6 gap-1.5 border-border/60 bg-card/50 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm"
+            >
+              <Sparkles className="h-3 w-3 text-primary" />
+              Built for the moments that matter
+            </Badge>
+            <h1 className="text-balance text-5xl font-bold tracking-tight leading-[1.05] font-heading md:text-7xl">
+              Seal today.
+              <br />
+              <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                Open tomorrow.
+              </span>
+            </h1>
+            <p className="mx-auto mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
+              Create time capsules for your future self and loved ones — letters,
+              photos, videos, and voice messages delivered on the exact day you
+              choose.
+            </p>
+            <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button size="lg" className="group px-8" render={<Link href="/sign-up" />}>
+                Create your first capsule
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-border/60 bg-card/40 px-8 backdrop-blur-sm"
+                render={<a href="#how-it-works" />}
+              >
+                See how it works
+              </Button>
+            </div>
+            <p className="mt-4 text-sm text-muted-foreground/70">
+              Free to start. No credit card required.
+            </p>
           </div>
-          <p className="mt-4 text-sm text-zinc-400">Free to start. No credit card required.</p>
         </section>
-
-        <Separator />
 
         {/* How it works */}
         <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-24">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight">How it works</h2>
-            <p className="mt-3 text-zinc-500">Three steps to send a gift across time.</p>
+          <div className="mb-16 text-center">
+            <h2 className="text-3xl font-bold tracking-tight font-heading md:text-4xl">
+              How it works
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Three steps to send a gift across time.
+            </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid gap-6 md:grid-cols-3">
             {steps.map((step, i) => (
-              <Card key={i} className="border-zinc-100 shadow-none">
-                <CardContent className="pt-8 pb-8 px-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-white">
+              <Card
+                key={i}
+                className="group relative overflow-hidden border-border/60 bg-card/60 transition-colors hover:border-primary/40"
+              >
+                <CardContent className="px-6 py-8">
+                  <div className="mb-5 flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/20">
                       <step.icon className="h-5 w-5" />
                     </div>
-                    <span className="text-sm font-medium text-zinc-400">Step {i + 1}</span>
+                    <span className="text-sm font-medium text-muted-foreground/70">
+                      Step {i + 1}
+                    </span>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">{step.title}</h3>
-                  <p className="text-sm text-zinc-500 leading-relaxed">{step.description}</p>
+                  <h3 className="mb-2 text-lg font-semibold">{step.title}</h3>
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {step.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
           </div>
         </section>
 
-        <Separator />
-
         {/* Use cases */}
-        <section className="bg-zinc-50 py-24">
+        <section className="border-y border-border/60 bg-card/30 py-24">
           <div className="mx-auto max-w-6xl px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold tracking-tight">
+            <div className="mb-12 text-center">
+              <h2 className="text-balance text-3xl font-bold tracking-tight font-heading md:text-4xl">
                 Some messages are worth waiting for
               </h2>
             </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {useCases.map((item, i) => (
                 <div
                   key={i}
-                  className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5"
+                  className="flex items-center gap-4 rounded-xl border border-border/60 bg-background/40 p-5 transition-colors hover:border-primary/40"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-100">
-                    <item.icon className="h-5 w-5 text-zinc-700" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                    <item.icon className="h-5 w-5" />
                   </div>
-                  <span className="text-sm font-medium text-zinc-700">{item.label}</span>
+                  <span className="text-sm font-medium text-foreground/90">
+                    {item.label}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <Separator />
-
         {/* Pricing */}
         <section id="pricing" className="mx-auto max-w-6xl px-6 py-24">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight">Simple pricing</h2>
-            <p className="mt-3 text-zinc-500">Start free. Upgrade when you need more.</p>
+          <div className="mb-16 text-center">
+            <h2 className="text-3xl font-bold tracking-tight font-heading md:text-4xl">
+              Simple pricing
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Start free. Upgrade when you need more.
+            </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid gap-6 md:grid-cols-3">
             {plans.map((plan) => (
               <Card
                 key={plan.name}
-                className={`relative shadow-none ${
+                className={`relative overflow-hidden ${
                   plan.highlight
-                    ? "border-zinc-900 ring-1 ring-zinc-900"
-                    : "border-zinc-100"
+                    ? "border-primary/50 bg-card shadow-[0_0_60px_-20px] shadow-primary/40"
+                    : "border-border/60 bg-card/60"
                 }`}
               >
                 {plan.highlight && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-zinc-900 text-white text-xs">Most popular</Badge>
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent"
+                  />
+                )}
+                {plan.highlight && (
+                  <div className="absolute right-4 top-4">
+                    <Badge className="bg-primary text-xs text-primary-foreground">
+                      Most popular
+                    </Badge>
                   </div>
                 )}
-                <CardContent className="pt-8 pb-8 px-6">
+                <CardContent className="px-6 py-8">
                   <div className="mb-6">
-                    <p className="text-sm font-medium text-zinc-500">{plan.name}</p>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {plan.name}
+                    </p>
                     <div className="mt-1 flex items-baseline gap-1">
-                      <span className="text-4xl font-bold">{plan.price}</span>
-                      <span className="text-zinc-400 text-sm">{plan.period}</span>
+                      <span className="text-4xl font-bold tracking-tight">
+                        {plan.price}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {plan.period}
+                      </span>
                     </div>
-                    <p className="mt-1 text-sm text-zinc-400">{plan.description}</p>
+                    <p className="mt-1 text-sm text-muted-foreground/70">
+                      {plan.description}
+                    </p>
                   </div>
-                  <ul className="space-y-3 mb-8">
+                  <ul className="mb-8 space-y-3">
                     {plan.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm text-zinc-600">
-                        <Check className="h-4 w-4 text-zinc-900 shrink-0" />
+                      <li
+                        key={f}
+                        className="flex items-center gap-2 text-sm text-foreground/80"
+                      >
+                        <Check className="h-4 w-4 shrink-0 text-primary" />
                         {f}
                       </li>
                     ))}
@@ -240,31 +300,43 @@ export default function LandingPage() {
         </section>
 
         {/* CTA */}
-        <section className="bg-zinc-900 text-white py-24">
-          <div className="mx-auto max-w-6xl px-6 text-center">
-            <div className="flex justify-center mb-6">
-              <Users className="h-10 w-10 text-zinc-400" />
+        <section className="px-6 pb-24">
+          <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-border/60 bg-card/60 px-6 py-20 text-center">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[300px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-[100px]"
+            />
+            <div className="mb-6 flex justify-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/20">
+                <Users className="h-7 w-7" />
+              </div>
             </div>
-            <h2 className="text-3xl font-bold tracking-tight">
+            <h2 className="text-balance text-3xl font-bold tracking-tight font-heading md:text-4xl">
               Ready to send a message to the future?
             </h2>
-            <p className="mt-4 text-zinc-400 max-w-md mx-auto">
-              Create your first capsule in minutes. The best time to start is today.
+            <p className="mx-auto mt-4 max-w-md text-muted-foreground">
+              Create your first capsule in minutes. The best time to start is
+              today.
             </p>
-            <Button size="lg" variant="secondary" className="mt-8 px-8" render={<Link href="/sign-up" />}>
+            <Button size="lg" className="group mt-8 px-8" render={<Link href="/sign-up" />}>
               Create your first capsule — it&apos;s free
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
           </div>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-100 py-8">
-        <div className="mx-auto max-w-6xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-zinc-400">
+      <footer className="border-t border-border/60 py-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-muted-foreground/70 sm:flex-row">
           <span>© 2026 Vaultly. All rights reserved.</span>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-zinc-600 transition-colors">Privacy</a>
-            <a href="#" className="hover:text-zinc-600 transition-colors">Terms</a>
+            <a href="#" className="transition-colors hover:text-foreground">
+              Privacy
+            </a>
+            <a href="#" className="transition-colors hover:text-foreground">
+              Terms
+            </a>
           </div>
         </div>
       </footer>
