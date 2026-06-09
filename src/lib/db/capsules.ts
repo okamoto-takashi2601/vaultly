@@ -17,6 +17,14 @@ export async function getCapsuleById(id: string, userId: string) {
   });
 }
 
+export async function getCapsuleForContribute(id: string) {
+  const prisma = await getPrisma();
+  return prisma.capsule.findFirst({
+    where: { id, isShared: true },
+    include: { contents: { orderBy: { order: "asc" } } },
+  });
+}
+
 type MediaItem = { url: string; key: string; type: "IMAGE" | "VIDEO" };
 
 export async function createCapsule(data: {
@@ -26,6 +34,7 @@ export async function createCapsule(data: {
   authorId: string;
   recipients: string[];
   media?: MediaItem[];
+  isShared?: boolean;
 }) {
   const prisma = await getPrisma();
 
@@ -46,6 +55,7 @@ export async function createCapsule(data: {
       status: "LOCKED",
       unlocksAt: data.unlocksAt,
       authorId: data.authorId,
+      isShared: data.isShared ?? false,
       contents: { create: [...textContent, ...mediaContent] },
       recipients: { create: data.recipients.map((email) => ({ email })) },
     },

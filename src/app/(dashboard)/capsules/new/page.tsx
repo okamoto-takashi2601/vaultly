@@ -10,7 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft, Lock, Sparkles, Plus, X, ImagePlus,
-  FileVideo, Loader2, CheckCircle2,
+  FileVideo, Loader2, CheckCircle2, Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useUploadThing } from "@/lib/uploadthing";
@@ -33,7 +33,9 @@ export default function NewCapsulePage() {
   const [recipients, setRecipients] = useState<string[]>([]);
   const [emailInput, setEmailInput] = useState("");
   const [media, setMedia] = useState<MediaItem[]>([]);
+  const [isShared, setIsShared] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState<string | null>(null);
 
   const { startUpload, isUploading } = useUploadThing("capsuleMedia", {
     onClientUploadComplete: (res) => {
@@ -72,8 +74,29 @@ export default function NewCapsulePage() {
   const removeRecipient = (email: string) =>
     setRecipients((prev) => prev.filter((e) => e !== email));
 
-  const injectPrompt = (prompt: string) =>
-    setBody((prev) => (prev ? `${prev}\n\n${prompt}\n` : `${prompt}\n`));
+  const injectPrompt = async (prompt: string) => {
+    setAiLoading(prompt);
+    try {
+      const res = await fetch("/api/ai/enhance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt, currentBody: body }),
+      });
+      if (res.status === 503) {
+        // AI not configured — fall back to injecting the prompt text
+        setBody((prev) => (prev ? `${prev}\n\n${prompt}\n` : `${prompt}\n`));
+        return;
+      }
+      if (!res.ok) throw new Error("AI request failed");
+      const data = await res.json();
+      setBody(data.text);
+    } catch {
+      // On any error fall back to injecting the prompt text
+      setBody((prev) => (prev ? `${prev}\n\n${prompt}\n` : `${prompt}\n`));
+    } finally {
+      setAiLoading(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,6 +112,7 @@ export default function NewCapsulePage() {
           unlocksAt: new Date(unlockDate).toISOString(),
           recipients,
           media: media.map(({ url, key, type }) => ({ url, key, type })),
+          isShared,
         }),
       });
       if (!res.ok) throw new Error("Failed to create capsule");
@@ -157,8 +181,12 @@ export default function NewCapsulePage() {
                     key={prompt}
                     type="button"
                     onClick={() => injectPrompt(prompt)}
-                    className="text-xs px-2.5 py-1 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 hover:border-primary/40 text-muted-foreground hover:text-foreground transition-all text-left"
+                    disabled={aiLoading !== null}
+                    className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 hover:border-primary/40 text-muted-foreground hover:text-foreground transition-all text-left disabled:opacity-50 disabled:cursor-not-allowed"
                   >
+                    {aiLoading === prompt && (
+                      <Loader2 className="h-3 w-3 animate-spin shrink-0" />
+                    )}
                     {prompt}
                   </button>
                 ))}
@@ -296,6 +324,40 @@ export default function NewCapsulePage() {
             </div>
           )}
           <p className="text-xs text-muted-foreground">Leave empty to send only to yourself.</p>
+        </div>
+
+        {/* Collaborative toggle */}
+        <div className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+          <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-[#d9b76e]/10 border border-[#d9b76e]/20 shrink-0 mt-0.5">
+            <Users className="h-4 w-4 text-[#d9b76e]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-medium">Collaborative capsule</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Allow friends to add their own messages before it unlocks
+                </p>
+              </div>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isShared}
+                onClick={() => setIsShared((v) => !v)}
+                className={[
+                  "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                  isShared ? "bg-[#d9b76e]" : "bg-white/20",
+                ].join(" ")}
+              >
+                <span
+                  className={[
+                    "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg transition-transform",
+                    isShared ? "translate-x-5" : "translate-x-0",
+                  ].join(" ")}
+                />
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Submit */}

@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Unlock, Users, Calendar } from "lucide-react";
+import { ArrowLeft, Unlock, Users, Calendar, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -110,6 +110,69 @@ export default async function CapsuleDetailPage({
             ))}
         </div>
       )}
+
+      {/* Contributions from friends */}
+      {(() => {
+        const contributions = capsule.contents.filter(
+          (c) => c.authorId && c.authorId !== capsule.authorId
+        );
+        if (contributions.length === 0) return null;
+
+        // Group by authorId
+        const byAuthor = contributions.reduce<Record<string, typeof contributions>>((acc, c) => {
+          const key = c.authorId!;
+          if (!acc[key]) acc[key] = [];
+          acc[key].push(c);
+          return acc;
+        }, {});
+
+        return (
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-3">
+              <MessageSquare className="h-4 w-4 text-[#d9b76e]" />
+              <span className="text-sm font-medium text-[#d9b76e]">Contributions from friends</span>
+            </div>
+            <div className="flex flex-col gap-3">
+              {Object.entries(byAuthor).map(([, items]) => (
+                <Card key={items[0].id} className="border-[#d9b76e]/20 bg-[#22233a]">
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xs font-medium text-[#d9b76e] bg-[#d9b76e]/10 border border-[#d9b76e]/20 rounded-full px-2.5 py-0.5">
+                        From a friend
+                      </span>
+                    </div>
+                    {items.filter((c) => c.type === "TEXT").map((c) => (
+                      <p key={c.id} className="text-sm leading-relaxed whitespace-pre-wrap mb-3 last:mb-0">
+                        {c.body}
+                      </p>
+                    ))}
+                    {items.some((c) => c.type === "IMAGE" || c.type === "VIDEO") && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                        {items
+                          .filter((c) => c.type === "IMAGE" || c.type === "VIDEO")
+                          .map((c) => (
+                            <div
+                              key={c.id}
+                              className="relative rounded-lg overflow-hidden border border-white/10 bg-[#1c1d2c]"
+                            >
+                              {c.type === "IMAGE" && c.mediaUrl && (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={c.mediaUrl} alt="" className="w-full aspect-square object-cover" />
+                              )}
+                              {c.type === "VIDEO" && c.mediaUrl && (
+                                <video src={c.mediaUrl} controls className="w-full aspect-video" />
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       <Separator className="bg-white/10 my-6" />
 

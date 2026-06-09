@@ -1,8 +1,8 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
-import Link from "next/link";
 import { User, Mail, Shield, Calendar, CreditCard } from "lucide-react";
+import { UpgradeButton } from "@/components/upgrade-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -64,12 +64,7 @@ export default async function SettingsPage() {
             <p className="text-sm text-muted-foreground">{PLAN_LIMITS[plan] ?? PLAN_LIMITS.FREE}</p>
           </div>
           {plan === "FREE" && (
-            <Link
-              href="/#pricing"
-              className="shrink-0 text-sm text-primary hover:text-primary/80 transition-colors"
-            >
-              Upgrade →
-            </Link>
+            <UpgradeButton plan="PERSONAL" />
           )}
         </CardContent>
       </Card>

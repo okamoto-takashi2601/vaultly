@@ -17,6 +17,7 @@ const createSchema = z.object({
   unlocksAt: z.string().datetime(),
   recipients: z.array(z.string().email()).default([]),
   media: z.array(mediaItemSchema).default([]),
+  isShared: z.boolean().default(false),
 }).refine((d) => d.body || d.media.length > 0, {
   message: "Capsule must have at least a message or one media file",
 });
@@ -54,6 +55,7 @@ export async function POST(req: Request) {
     authorId: user.id,
     recipients: parsed.data.recipients,
     media: parsed.data.media,
+    isShared: parsed.data.isShared,
   });
 
   // Schedule unlock job if EventBridge is configured
