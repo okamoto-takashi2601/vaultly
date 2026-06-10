@@ -36,6 +36,8 @@ export default function NewCapsulePage() {
   const [isShared, setIsShared] = useState(false);
   const [loading, setLoading] = useState(false);
   const [aiLoading, setAiLoading] = useState<string | null>(null);
+  const [aiUsed, setAiUsed] = useState(0);
+  const AI_LIMIT = 3;
 
   const { startUpload, isUploading } = useUploadThing("capsuleMedia", {
     onClientUploadComplete: (res) => {
@@ -83,13 +85,17 @@ export default function NewCapsulePage() {
         body: JSON.stringify({ prompt, currentBody: body }),
       });
       if (res.status === 503 || res.status === 429) {
-        // Not configured or rate limited — insert prompt as writing guide
         setBody((prev) => (prev ? `${prev}\n\n${prompt}\n` : `${prompt}\n`));
+        return;
+      }
+      if (res.status === 403) {
+        alert(`You've used all ${AI_LIMIT} free AI generations. Upgrade to Personal plan for unlimited access.`);
         return;
       }
       if (!res.ok) throw new Error("AI request failed");
       const data = await res.json();
       setBody(data.text);
+      if (data.used !== undefined) setAiUsed(data.used);
     } catch {
       setBody((prev) => (prev ? `${prev}\n\n${prompt}\n` : `${prompt}\n`));
     } finally {
@@ -170,9 +176,14 @@ export default function NewCapsulePage() {
           />
           <Card className="border-white/10 bg-white/5">
             <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <span className="text-xs font-medium text-primary">AI Memory Enhancer</span>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-xs font-medium text-primary">AI Memory Enhancer</span>
+                </div>
+                <span className="text-[10px] text-muted-foreground">
+                  {AI_LIMIT - aiUsed} / {AI_LIMIT} free uses left
+                </span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {AI_PROMPTS.map((prompt) => (

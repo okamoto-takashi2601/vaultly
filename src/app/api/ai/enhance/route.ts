@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getOrCreateUser } from "@/lib/db/users";
+import { getPrisma } from "@/lib/prisma";
+
+const FREE_AI_LIMIT = 3;
 
 export async function POST(req: Request) {
   const { userId } = await auth();
@@ -8,6 +12,17 @@ export async function POST(req: Request) {
 
   if (!process.env.GEMINI_API_KEY) {
     return NextResponse.json({ error: "AI not configured" }, { status: 503 });
+  }
+
+  const user = await getOrCreateUser();
+  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  const usageCount = user.aiUsageCount ?? 0;
+  if (user.plan === "FREE" && usageCount >= FREE_AI_LIMIT) {
+    return NextResponse.json(
+      { error: "limit_reached", used: usageCount, limit: FREE_AI_LIMIT },
+      { status: 403 }
+    );
   }
 
   const { prompt, currentBody } = await req.json();
@@ -29,7 +44,15 @@ Write a personal, emotional response (1-2 short paragraphs, max 150 words) in fi
   try {
     const result = await model.generateContent(input);
     const text = result.response.text();
-    return NextResponse.json({ text });
+
+    // Increment usage counter
+    const prisma = await getPrisma();
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { aiUsageCount: (usageCount + 1) },
+    });
+
+    return NextResponse.json({ text, used: usageCount + 1, limit: FREE_AI_LIMIT });
   } catch (err: unknown) {
     const status = (err as { status?: number }).status;
     if (status === 429) {
