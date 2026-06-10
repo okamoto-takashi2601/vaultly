@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Link2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n-client";
 
 function XIcon() {
   return (
@@ -80,10 +81,12 @@ const SNS = [
 
 export function ShareButtons({ url, title, unlocksAt, isLocked = true }: Props) {
   const [copied, setCopied] = useState(false);
+  const { tr, lang } = useLanguage();
+  const locale = lang === "ja" ? "ja-JP" : lang === "zh" ? "zh-CN" : lang === "vi" ? "vi-VN" : "en";
 
   const shareText = isLocked && unlocksAt
-    ? `I sealed a time capsule "${title}" on Laterloom — it opens on ${unlocksAt.toLocaleDateString("en", { month: "long", day: "numeric", year: "numeric" })}. 🔒`
-    : `My Laterloom time capsule "${title}" just unlocked! 🔓`;
+    ? tr.share_text_locked(title, unlocksAt.toLocaleDateString(locale, { month: "long", day: "numeric", year: "numeric" }))
+    : tr.share_text_unlocked(title);
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(url);
@@ -101,9 +104,9 @@ export function ShareButtons({ url, title, unlocksAt, isLocked = true }: Props) 
         onClick={copyLink}
       >
         {copied ? (
-          <><Check className="h-3.5 w-3.5 text-emerald-400" /> Copied!</>
+          <><Check className="h-3.5 w-3.5 text-emerald-400" /> {tr.share_copied}</>
         ) : (
-          <><Link2 className="h-3.5 w-3.5" /> Copy link</>
+          <><Link2 className="h-3.5 w-3.5" /> {tr.share_copy}</>
         )}
       </Button>
 

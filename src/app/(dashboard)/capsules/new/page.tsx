@@ -14,19 +14,13 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useUploadThing } from "@/lib/uploadthing";
-
-const AI_PROMPTS = [
-  "What are you most proud of right now?",
-  "What are you worried about that you hope will be resolved?",
-  "What do you want your future self to remember about today?",
-  "What is your biggest hope for this person?",
-  "Describe where you are in life in one sentence.",
-];
+import { useLanguage } from "@/lib/i18n-client";
 
 type MediaItem = { url: string; key: string; type: "IMAGE" | "VIDEO"; name: string; previewUrl?: string };
 
 export default function NewCapsulePage() {
   const router = useRouter();
+  const { tr } = useLanguage();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [unlockDate, setUnlockDate] = useState("");
@@ -89,7 +83,7 @@ export default function NewCapsulePage() {
         return;
       }
       if (res.status === 403) {
-        alert(`You've used all ${AI_LIMIT} free AI generations. Upgrade to Personal plan for unlimited access.`);
+        alert(tr.new_ai_limit);
         return;
       }
       if (!res.ok) throw new Error("AI request failed");
@@ -143,21 +137,21 @@ export default function NewCapsulePage() {
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to dashboard
+        {tr.new_back}
       </Link>
 
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight">Create a capsule</h1>
-        <p className="text-sm text-muted-foreground mt-1">Seal a message for the future.</p>
+        <h1 className="text-2xl font-bold tracking-tight">{tr.new_title}</h1>
+        <p className="text-sm text-muted-foreground mt-1">{tr.new_subtitle}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* Title */}
         <div className="flex flex-col gap-2">
-          <Label htmlFor="title">Title</Label>
+          <Label htmlFor="title">{tr.new_label_title}</Label>
           <Input
             id="title"
-            placeholder="Letter to my future self"
+            placeholder={tr.new_placeholder_title}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
@@ -167,12 +161,12 @@ export default function NewCapsulePage() {
         {/* Message */}
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="body">Message</Label>
-            <span className="text-xs text-muted-foreground">Optional if you add photos/videos</span>
+            <Label htmlFor="body">{tr.new_label_message}</Label>
+            <span className="text-xs text-muted-foreground">{tr.new_optional}</span>
           </div>
           <Textarea
             id="body"
-            placeholder="Write your message here..."
+            placeholder={tr.new_placeholder_message}
             value={body}
             onChange={(e) => setBody(e.target.value)}
             className="min-h-[160px] resize-y"
@@ -182,14 +176,14 @@ export default function NewCapsulePage() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-xs font-medium text-primary">AI Memory Enhancer</span>
+                  <span className="text-xs font-medium text-primary">{tr.new_ai_label}</span>
                 </div>
                 <span className="text-[10px] text-muted-foreground">
-                  {AI_LIMIT - aiUsed} / {AI_LIMIT} free uses left
+                  {tr.new_ai_uses(AI_LIMIT - aiUsed)}
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {AI_PROMPTS.map((prompt) => (
+                {tr.ai_prompts.map((prompt) => (
                   <button
                     key={prompt}
                     type="button"
@@ -210,7 +204,7 @@ export default function NewCapsulePage() {
 
         {/* Media upload */}
         <div className="flex flex-col gap-3">
-          <Label>Photos &amp; Videos</Label>
+          <Label>{tr.new_label_media}</Label>
 
           {/* Previews */}
           {media.length > 0 && (
@@ -272,16 +266,16 @@ export default function NewCapsulePage() {
             {isUploading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Uploading...</span>
+                <span className="text-sm text-muted-foreground">{tr.new_media_uploading}</span>
               </>
             ) : (
               <>
                 <ImagePlus className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  Add photos or videos
+                  {tr.new_media_add}
                 </span>
                 <span className="text-xs text-muted-foreground/60">
-                  · Images up to 8 MB, videos up to 256 MB
+                  {tr.new_media_hint}
                 </span>
               </>
             )}
@@ -290,7 +284,7 @@ export default function NewCapsulePage() {
 
         {/* Unlock date */}
         <div className="flex flex-col gap-2">
-          <Label htmlFor="unlockDate">Unlock date</Label>
+          <Label htmlFor="unlockDate">{tr.new_label_unlock}</Label>
           <Input
             id="unlockDate"
             type="datetime-local"
@@ -301,17 +295,17 @@ export default function NewCapsulePage() {
             className="[color-scheme:dark]"
           />
           <p className="text-xs text-muted-foreground">
-            Recipients will be notified when the capsule unlocks at this exact date and time.
+            {tr.new_unlock_hint}
           </p>
         </div>
 
         {/* Recipients */}
         <div className="flex flex-col gap-2">
-          <Label>Recipients</Label>
+          <Label>{tr.new_label_recipients}</Label>
           <div className="flex gap-2">
             <Input
               type="email"
-              placeholder="friend@email.com"
+              placeholder={tr.new_placeholder_email}
               value={emailInput}
               onChange={(e) => setEmailInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addRecipient())}
@@ -336,7 +330,7 @@ export default function NewCapsulePage() {
               ))}
             </div>
           )}
-          <p className="text-xs text-muted-foreground">Leave empty to send only to yourself.</p>
+          <p className="text-xs text-muted-foreground">{tr.new_recipients_hint}</p>
         </div>
 
         {/* Collaborative toggle */}
@@ -347,9 +341,9 @@ export default function NewCapsulePage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-medium">Collaborative capsule</p>
+                <p className="text-sm font-medium">{tr.new_collab_title}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Allow friends to add their own messages before it unlocks
+                  {tr.new_collab_desc}
                 </p>
               </div>
               <button
@@ -377,10 +371,10 @@ export default function NewCapsulePage() {
         <div className="flex items-center gap-3 pt-2">
           <Button type="submit" disabled={loading || isUploading} className="gap-2">
             <Lock className="h-4 w-4" />
-            {loading ? "Sealing..." : "Seal capsule"}
+            {loading ? tr.new_submitting : tr.new_submit}
           </Button>
           <Button type="button" variant="ghost" nativeButton={false} render={<Link href="/dashboard" />}>
-            Cancel
+            {tr.new_cancel}
           </Button>
         </div>
       </form>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, Lock, Unlock, Clock, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n-client";
 
 type Capsule = {
   id: string;
@@ -39,27 +40,29 @@ function toDateKey(date: Date) {
   return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, labels }: { status: string; labels: { locked: string; unlocked: string; draft: string } }) {
   if (status === "LOCKED")
     return (
       <Badge variant="secondary" className="gap-1 text-xs shrink-0">
-        <Lock className="h-3 w-3" /> Locked
+        <Lock className="h-3 w-3" /> {labels.locked}
       </Badge>
     );
   if (status === "UNLOCKED")
     return (
       <Badge className="gap-1 text-xs shrink-0 bg-emerald-400/15 text-emerald-200 border-emerald-400/25">
-        <Unlock className="h-3 w-3" /> Unlocked
+        <Unlock className="h-3 w-3" /> {labels.unlocked}
       </Badge>
     );
   return (
     <Badge variant="outline" className="gap-1 text-xs shrink-0">
-      <Clock className="h-3 w-3" /> Draft
+      <Clock className="h-3 w-3" /> {labels.draft}
     </Badge>
   );
 }
 
 export function CapsuleCalendar({ capsules }: { capsules: Capsule[] }) {
+  const { tr, lang } = useLanguage();
+  const locale = lang === "ja" ? "ja-JP" : lang === "zh" ? "zh-CN" : lang === "vi" ? "vi-VN" : "en";
   const today = new Date();
   const [viewDate, setViewDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1));
   const [selectedKey, setSelectedKey] = useState<string | null>(toDateKey(today));
@@ -93,7 +96,7 @@ export function CapsuleCalendar({ capsules }: { capsules: Capsule[] }) {
   const selectedLabel = selectedKey
     ? (() => {
         const [y, m, d] = selectedKey.split("-").map(Number);
-        return new Date(y, m, d).toLocaleDateString("en", {
+        return new Date(y, m, d).toLocaleDateString(locale, {
           weekday: "long",
           year: "numeric",
           month: "long",
@@ -110,10 +113,10 @@ export function CapsuleCalendar({ capsules }: { capsules: Capsule[] }) {
         <div className="mb-4 flex items-end justify-between">
           <div className="flex flex-col">
             <span className="text-xs font-medium uppercase tracking-[0.2em] text-[#8b8aa0]">
-              {viewDate.toLocaleDateString("en", { year: "numeric" })}
+              {viewDate.toLocaleDateString(locale, { year: "numeric" })}
             </span>
             <h2 className="text-3xl font-semibold leading-none tracking-tight text-[#f5f2eb]">
-              {viewDate.toLocaleDateString("en", { month: "long" })}
+              {viewDate.toLocaleDateString(locale, { month: "long" })}
             </h2>
           </div>
           <div className="flex items-center gap-1">
@@ -132,7 +135,7 @@ export function CapsuleCalendar({ capsules }: { capsules: Capsule[] }) {
               className="text-xs tracking-wide text-[#8b8aa0] hover:text-[#f5f2eb]"
               onClick={() => setViewDate(new Date(today.getFullYear(), today.getMonth(), 1))}
             >
-              Today
+              {tr.cal_today}
             </Button>
             <Button
               variant="ghost"
@@ -168,7 +171,7 @@ export function CapsuleCalendar({ capsules }: { capsules: Capsule[] }) {
               return (
                 <div
                   key={`empty-${i}`}
-                  className="min-h-[84px] rounded-xl border border-white/[0.03] bg-white/[0.01]"
+                  className="min-h-[56px] md:min-h-[84px] rounded-xl border border-white/[0.03] bg-white/[0.01]"
                 />
               );
             const key = `${year}-${month}-${day}`;
@@ -184,7 +187,7 @@ export function CapsuleCalendar({ capsules }: { capsules: Capsule[] }) {
                 key={key}
                 onClick={() => setSelectedKey(isSelected ? null : key)}
                 className={[
-                  "group relative flex min-h-[84px] flex-col gap-1.5 rounded-xl border p-2 text-left transition-all duration-200",
+                  "group relative flex min-h-[56px] md:min-h-[84px] flex-col gap-1.5 rounded-xl border p-2 text-left transition-all duration-200",
                   "bg-[#22233a]/60 hover:bg-[#22233a] hover:border-white/10",
                   isSelected
                     ? "border-[#d9b76e]/50 bg-[#22233a] shadow-[0_0_0_1px_rgba(217,183,110,0.25),0_0_24px_-6px_rgba(217,183,110,0.45)]"
@@ -205,29 +208,41 @@ export function CapsuleCalendar({ capsules }: { capsules: Capsule[] }) {
                   {day}
                 </span>
 
-                {/* Capsule pills — up to 2 titles, then +N */}
+                {/* Capsule pills — hidden on mobile (dots only), shown on md+ */}
                 {dayCapsules.length > 0 && (
-                  <div className="mt-auto flex flex-col gap-1">
-                    {dayCapsules.slice(0, 2).map((c) => (
-                      <span
-                        key={c.id}
-                        className={[
-                          "flex items-center gap-1 truncate rounded-md px-1.5 py-0.5 text-[10px] font-medium leading-tight",
-                          PILL_STYLE[c.status] ?? PILL_STYLE.DRAFT,
-                        ].join(" ")}
-                      >
+                  <>
+                    {/* Mobile: colored dots only */}
+                    <div className="mt-auto flex md:hidden flex-wrap gap-1">
+                      {dayCapsules.slice(0, 3).map((c) => (
                         <span
-                          className={`h-1.5 w-1.5 shrink-0 rounded-full ${STATUS_DOT[c.status] ?? "bg-white/30"}`}
+                          key={c.id}
+                          className={`h-1.5 w-1.5 rounded-full ${STATUS_DOT[c.status] ?? "bg-white/30"}`}
                         />
-                        <span className="truncate">{c.title}</span>
-                      </span>
-                    ))}
-                    {dayCapsules.length > 2 && (
-                      <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-medium leading-tight text-[#8b8aa0]">
-                        +{dayCapsules.length - 2} more
-                      </span>
-                    )}
-                  </div>
+                      ))}
+                    </div>
+                    {/* Desktop: full pills */}
+                    <div className="mt-auto hidden md:flex flex-col gap-1">
+                      {dayCapsules.slice(0, 2).map((c) => (
+                        <span
+                          key={c.id}
+                          className={[
+                            "flex items-center gap-1 truncate rounded-md px-1.5 py-0.5 text-[10px] font-medium leading-tight",
+                            PILL_STYLE[c.status] ?? PILL_STYLE.DRAFT,
+                          ].join(" ")}
+                        >
+                          <span
+                            className={`h-1.5 w-1.5 shrink-0 rounded-full ${STATUS_DOT[c.status] ?? "bg-white/30"}`}
+                          />
+                          <span className="truncate">{c.title}</span>
+                        </span>
+                      ))}
+                      {dayCapsules.length > 2 && (
+                        <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-medium leading-tight text-[#8b8aa0]">
+                          +{dayCapsules.length - 2} more
+                        </span>
+                      )}
+                    </div>
+                  </>
                 )}
               </button>
             );
@@ -258,7 +273,7 @@ export function CapsuleCalendar({ capsules }: { capsules: Capsule[] }) {
             <>
               <div className="mb-4">
                 <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#d9b76e]/80">
-                  Selected day
+                  {tr.cal_selected_day}
                 </p>
                 <p className="mt-1 text-sm font-medium leading-snug text-[#f5f2eb]">
                   {selectedLabel}
@@ -275,16 +290,16 @@ export function CapsuleCalendar({ capsules }: { capsules: Capsule[] }) {
                     &#128274;
                   </span>
                   <p className="text-sm font-medium text-[#f5f2eb]/70">
-                    Nothing sealed for this day
+                    {tr.cal_empty_title}
                   </p>
                   <p className="text-xs leading-relaxed text-[#8b8aa0]">
-                    The vault is quiet here. Seal a memory to unlock on this date.
+                    {tr.cal_empty_desc}
                   </p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-2.5">
                   {selectedCapsules.map((c) => {
-                    const unlock = new Date(c.unlocksAt).toLocaleDateString("en", {
+                    const unlock = new Date(c.unlocksAt).toLocaleDateString(locale, {
                       month: "short",
                       day: "numeric",
                       year: "numeric",
@@ -303,7 +318,7 @@ export function CapsuleCalendar({ capsules }: { capsules: Capsule[] }) {
                           <span className="line-clamp-2 text-sm font-medium leading-snug text-[#f5f2eb]">
                             {c.title}
                           </span>
-                          <StatusBadge status={c.status} />
+                          <StatusBadge status={c.status} labels={{ locked: tr.status_locked, unlocked: tr.status_unlocked, draft: tr.status_draft }} />
                         </div>
                         <div className="flex items-center justify-between gap-2 text-xs text-[#8b8aa0]">
                           <span className="flex items-center gap-1.5">
@@ -327,10 +342,10 @@ export function CapsuleCalendar({ capsules }: { capsules: Capsule[] }) {
                 &#128302;
               </span>
               <p className="text-sm font-medium text-[#f5f2eb]/70">
-                Select a date
+                {tr.cal_select_title}
               </p>
               <p className="text-xs leading-relaxed text-[#8b8aa0]">
-                Choose a day to peer into what&apos;s sealed within.
+                {tr.cal_select_desc}
               </p>
             </div>
           )}

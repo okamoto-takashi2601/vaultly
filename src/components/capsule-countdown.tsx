@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Lock, Unlock, Users, Calendar, Trash2 } from "lucide-react";
+import { ArrowLeft, Lock, Unlock, Users, Calendar, Trash2, Link2, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { ShareButtons } from "@/components/share-buttons";
+import { useLanguage } from "@/lib/i18n-client";
 
 type TimeLeft = {
   days: number;
@@ -53,6 +54,7 @@ type Props = {
   unlocksAt: Date;
   createdAt: Date;
   recipients: Recipient[];
+  isShared?: boolean;
 };
 
 export function CapsuleLockedView({
@@ -63,20 +65,23 @@ export function CapsuleLockedView({
   unlocksAt,
   createdAt,
   recipients,
+  isShared,
 }: Props) {
   const router = useRouter();
+  const { tr, lang } = useLanguage();
   const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [copiedContribute, setCopiedContribute] = useState(false);
 
   const handleDelete = async () => {
-    if (!confirm("Delete this capsule? This cannot be undone.")) return;
+    if (!confirm(tr.locked_delete_confirm)) return;
     setDeleting(true);
     try {
       await fetch(`/api/capsules/${capsuleId}`, { method: "DELETE" });
       router.push("/dashboard");
       router.refresh();
     } catch {
-      alert("Failed to delete. Please try again.");
+      alert(tr.locked_delete_failed);
       setDeleting(false);
     }
   };
@@ -95,7 +100,8 @@ export function CapsuleLockedView({
   }, [unlocksAt]);
 
   const isExpired = timeLeft !== null && timeLeft.total <= 0;
-  const unlockLabel = unlocksAt.toLocaleDateString("en", {
+  const locale = lang === "ja" ? "ja-JP" : lang === "zh" ? "zh-CN" : lang === "vi" ? "vi-VN" : "en";
+  const unlockLabel = unlocksAt.toLocaleDateString(locale, {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -111,7 +117,7 @@ export function CapsuleLockedView({
           className="inline-flex items-center gap-2 text-sm text-[#8b8aa0] hover:text-[#f5f2eb] transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to dashboard
+          {tr.locked_back}
         </Link>
         <button
           onClick={handleDelete}
@@ -119,7 +125,7 @@ export function CapsuleLockedView({
           className="inline-flex items-center gap-1.5 text-sm text-red-400/70 hover:text-red-300 transition-colors disabled:opacity-50"
         >
           <Trash2 className="h-3.5 w-3.5" />
-          {deleting ? "Deleting…" : "Delete"}
+          {deleting ? tr.locked_deleting : tr.locked_delete}
         </button>
       </div>
 
@@ -144,9 +150,9 @@ export function CapsuleLockedView({
           className="mb-4 gap-1.5 border-[#d9b76e]/30 bg-[#d9b76e]/10 text-[#d9b76e]"
         >
           {isExpired ? (
-            <><Unlock className="h-3 w-3" /> Ready to open</>
+            <><Unlock className="h-3 w-3" /> {tr.locked_badge_ready}</>
           ) : (
-            <><Lock className="h-3 w-3" /> Sealed</>
+            <><Lock className="h-3 w-3" /> {tr.locked_badge_sealed}</>
           )}
         </Badge>
 
@@ -160,13 +166,13 @@ export function CapsuleLockedView({
         {/* Countdown or unlocked message */}
         {isExpired ? (
           <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/5 px-8 py-6">
-            <p className="text-lg font-semibold text-emerald-300">This capsule is ready to open</p>
-            <p className="mt-1 text-sm text-[#8b8aa0]">The seal has lifted on {unlockLabel}</p>
+            <p className="text-lg font-semibold text-emerald-300">{tr.locked_ready_msg}</p>
+            <p className="mt-1 text-sm text-[#8b8aa0]">{tr.locked_ready_sub(unlockLabel)}</p>
           </div>
         ) : (
           <div className="mt-2">
             <p className="mb-6 text-xs font-medium uppercase tracking-[0.2em] text-[#8b8aa0]">
-              Opens in
+              {tr.locked_opens_in}
             </p>
             {timeLeft === null ? (
               /* SSR placeholder — same layout, zeros, no flash */
@@ -181,17 +187,17 @@ export function CapsuleLockedView({
               </div>
             ) : (
               <div className="flex items-start gap-3 sm:gap-5">
-                <Digit value={timeLeft.days} label="days" />
+                <Digit value={timeLeft.days} label={tr.locked_days} />
                 <span className="mt-4 text-2xl font-thin text-[#8b8aa0]">:</span>
-                <Digit value={timeLeft.hours} label="hours" />
+                <Digit value={timeLeft.hours} label={tr.locked_hours} />
                 <span className="mt-4 text-2xl font-thin text-[#8b8aa0]">:</span>
-                <Digit value={timeLeft.minutes} label="min" />
+                <Digit value={timeLeft.minutes} label={tr.locked_min} />
                 <span className="mt-4 text-2xl font-thin text-[#8b8aa0]">:</span>
-                <Digit value={timeLeft.seconds} label="sec" />
+                <Digit value={timeLeft.seconds} label={tr.locked_sec} />
               </div>
             )}
             <p className="mt-6 text-sm text-[#8b8aa0]">
-              Sealed until{" "}
+              {tr.locked_sealed_until}{" "}
               <span className="font-medium text-[#f5f2eb]">{unlockLabel}</span>
             </p>
           </div>
@@ -205,7 +211,7 @@ export function CapsuleLockedView({
             <Calendar className="h-4 w-4 shrink-0" />
             <span>
               Created{" "}
-              {createdAt.toLocaleDateString("en", {
+              {createdAt.toLocaleDateString(locale, {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -229,9 +235,31 @@ export function CapsuleLockedView({
             </div>
           )}
 
+          {/* Collaborate invite link */}
+          {isShared && !isExpired && (
+            <div className="pt-2 border-t border-white/[0.06]">
+              <p className="text-xs text-[#8b8aa0] mb-1">{tr.locked_invite_title}</p>
+              <p className="text-[11px] text-[#8b8aa0]/70 mb-2">{tr.locked_invite_desc}</p>
+              <button
+                onClick={async () => {
+                  await navigator.clipboard.writeText(`${shareUrl}/contribute`);
+                  setCopiedContribute(true);
+                  setTimeout(() => setCopiedContribute(false), 2000);
+                }}
+                className="inline-flex items-center gap-2 h-8 px-3 rounded-md border border-[#d9b76e]/30 bg-[#d9b76e]/10 text-[#d9b76e] text-xs font-medium hover:bg-[#d9b76e]/20 transition-colors"
+              >
+                {copiedContribute ? (
+                  <><Check className="h-3.5 w-3.5" /> {tr.locked_copied}</>
+                ) : (
+                  <><Link2 className="h-3.5 w-3.5" /> {tr.locked_copy_contribute}</>
+                )}
+              </button>
+            </div>
+          )}
+
           {/* Share */}
           <div className="pt-2 border-t border-white/[0.06]">
-            <p className="text-xs text-[#8b8aa0] mb-2">Share this capsule</p>
+            <p className="text-xs text-[#8b8aa0] mb-2">{tr.locked_share}</p>
             <ShareButtons
               url={shareUrl}
               title={title}

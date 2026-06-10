@@ -40,6 +40,7 @@ export default async function CapsuleDetailPage({
         unlocksAt={unlocksAt}
         createdAt={new Date(capsule.createdAt)}
         recipients={capsule.recipients.map((r) => ({ id: r.id, email: r.email }))}
+        isShared={capsule.isShared}
       />
     );
   }

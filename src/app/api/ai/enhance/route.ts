@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getOrCreateUser } from "@/lib/db/users";
 import { getPrisma } from "@/lib/prisma";
+import { AI_LOCALE, isValidLanguage } from "@/lib/i18n";
 
 const FREE_AI_LIMIT = 3;
 
@@ -28,6 +29,9 @@ export async function POST(req: Request) {
   const { prompt, currentBody } = await req.json();
   if (!prompt) return NextResponse.json({ error: "No prompt" }, { status: 400 });
 
+  const userLang = isValidLanguage(user.language) ? user.language : "en";
+  const localeName = AI_LOCALE[userLang];
+
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: "gemini-2.5-flash-lite",
@@ -39,7 +43,8 @@ export async function POST(req: Request) {
 Reflection prompt: "${prompt}"
 ${currentBody ? `Their current draft:\n"${currentBody}"` : "No draft yet."}
 
-Write a personal, emotional response (1-2 short paragraphs, max 150 words) in first person. Be specific and vivid. Don't include the question itself.`;
+Write a personal, emotional response (1-2 short paragraphs, max 150 words) in first person. Be specific and vivid. Don't include the question itself.
+IMPORTANT: Write the entire response in ${localeName}. Do not use any other language.`;
 
   try {
     const result = await model.generateContent(input);
