@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, Loader2 } from "lucide-react";
 import { LANGUAGES, type Language } from "@/lib/i18n";
 import { useLanguage } from "@/lib/i18n-client";
 
 export function LanguageSelector({ currentLang }: { currentLang: Language }) {
   const { lang, setLang } = useLanguage();
+  const router = useRouter();
   const [saving, setSaving] = useState(false);
 
   // Use context lang as source of truth (falls back to server prop on first render)
@@ -15,7 +17,7 @@ export function LanguageSelector({ currentLang }: { currentLang: Language }) {
   const handleChange = async (newLang: Language) => {
     if (newLang === selected || saving) return;
 
-    // Update UI immediately (optimistic)
+    // Update client context immediately (optimistic)
     setLang(newLang);
     setSaving(true);
     try {
@@ -24,6 +26,8 @@ export function LanguageSelector({ currentLang }: { currentLang: Language }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ language: newLang }),
       });
+      // Re-render server components (headings, page text) with new language
+      router.refresh();
     } finally {
       setSaving(false);
     }

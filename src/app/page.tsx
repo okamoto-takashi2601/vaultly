@@ -13,6 +13,7 @@ import {
   Baby,
   Check,
   ArrowRight,
+  Globe,
 } from "lucide-react";
 
 const steps = [
@@ -49,7 +50,7 @@ const plans = [
     price: "$0",
     period: "",
     description: "Try it out",
-    features: ["Up to 3 capsules", "Photos & videos", "Multiple recipients", "3 AI Memory Enhancer uses"],
+    features: ["Up to 3 capsules", "Photos & videos", "Multiple recipients", "3 AI Memory Enhancer uses", "4 languages (EN · JA · ZH · VI)"],
     cta: "Get started",
     highlight: false,
   },
@@ -64,6 +65,7 @@ const plans = [
       "5 GB storage",
       "Multiple recipients",
       "Unlimited AI Memory Enhancer",
+      "4 languages (EN · JA · ZH · VI)",
     ],
     cta: "Start free trial",
     highlight: true,
@@ -79,6 +81,7 @@ const plans = [
       "20 GB shared storage",
       "Collaborative capsules",
       "Up to 6 members",
+      "4 languages (EN · JA · ZH · VI)",
     ],
     cta: "Start free trial",
     highlight: false,
@@ -104,6 +107,9 @@ export default function LandingPage() {
             <a href="#pricing" className="hover:text-foreground transition-colors">
               Pricing
             </a>
+            <Link href="/about" className="hover:text-foreground transition-colors">
+              About
+            </Link>
           </nav>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/sign-in" />}>
@@ -130,7 +136,7 @@ export default function LandingPage() {
               className="mb-6 gap-1.5 border-border/60 bg-card/50 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm"
             >
               <Sparkles className="h-3 w-3 text-primary" />
-              Built for the moments that matter
+              Powered by Aurora DSQL &amp; Vercel · Built for the moments that matter
             </Badge>
             <h1 className="text-balance text-5xl font-bold tracking-tight leading-[1.05] font-heading md:text-7xl">
               Seal today.
@@ -161,6 +167,50 @@ export default function LandingPage() {
             <p className="mt-4 text-sm text-muted-foreground/70">
               Free to start. No credit card required.
             </p>
+            <div className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground/60">
+              <Globe className="h-3.5 w-3.5" />
+              <span>Available in</span>
+              <span className="flex items-center gap-1.5">
+                <span title="English">🇺🇸</span>
+                <span title="日本語">🇯🇵</span>
+                <span title="中文">🇨🇳</span>
+                <span title="Tiếng Việt">🇻🇳</span>
+              </span>
+              <span>· English · 日本語 · 中文 · Tiếng Việt</span>
+            </div>
+          </div>
+        </section>
+
+        {/* Tech stack strip */}
+        <section className="border-y border-border/40 bg-card/20">
+          <div className="mx-auto max-w-6xl px-6 py-5">
+            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs text-muted-foreground/50">
+              <span className="hidden sm:block text-[10px] font-medium uppercase tracking-[0.2em]">Powered by</span>
+              <span className="flex items-center gap-2 text-muted-foreground/70 font-medium">
+                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current text-[#FF9900]" aria-hidden="true"><path d="M.045 18.02c.072-.116.187-.124.348-.022 3.636 2.11 7.594 3.166 11.87 3.166 2.852 0 5.668-.533 8.447-1.595l.315-.14c.138-.06.234-.1.293-.13.226-.088.39-.046.525.13.12.174.09.336-.12.48-.256.19-.6.41-1.006.654-1.244.743-2.64 1.316-4.185 1.726a17.617 17.617 0 0 1-10.951-.577 17.88 17.88 0 0 1-5.43-3.35c-.1-.1-.154-.194-.165-.334-.01-.14.045-.254.16-.408zm6.552-2.218c-.166-.334-.166-.668 0-.977l2.88-5.057c.42-.743 1.172-1.112 2.253-1.112 1.08 0 1.832.37 2.253 1.112l2.88 5.057c.166.31.166.643 0 .977-.167.335-.432.5-.793.5H7.39c-.36 0-.627-.165-.793-.5zm2.09-.826h4.627l-2.314-4.078-2.312 4.078zm7.373-7.78c0-.376.14-.7.42-.97.28-.27.61-.406.99-.406.38 0 .71.135.99.406.28.27.42.594.42.97 0 .376-.14.7-.42.97-.28.27-.61.405-.99.405-.38 0-.71-.135-.99-.405-.28-.27-.42-.594-.42-.97zm-11.52 0c0-.376.14-.7.42-.97.28-.27.61-.406.99-.406.38 0 .71.135.99.406.28.27.42.594.42.97 0 .376-.14.7-.42.97-.28.27-.61.405-.99.405-.38 0-.71-.135-.99-.405-.28-.27-.42-.594-.42-.97z"/></svg>
+                Aurora DSQL
+              </span>
+              <span className="text-border/60">·</span>
+              <span className="flex items-center gap-2 text-muted-foreground/70 font-medium">
+                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true"><path d="M24 22.525H0l12-21.05 12 21.05z"/></svg>
+                Vercel
+              </span>
+              <span className="text-border/60">·</span>
+              <span className="flex items-center gap-2 text-muted-foreground/70 font-medium">
+                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current text-[#635BFF]" aria-hidden="true"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/></svg>
+                Stripe
+              </span>
+              <span className="text-border/60">·</span>
+              <span className="flex items-center gap-2 text-muted-foreground/70 font-medium">
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                OpenAI
+              </span>
+              <span className="text-border/60">·</span>
+              <span className="flex items-center gap-2 text-muted-foreground/70 font-medium">
+                <Lock className="h-3.5 w-3.5" />
+                Clerk Auth
+              </span>
+            </div>
           </div>
         </section>
 
@@ -331,12 +381,15 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 text-sm text-muted-foreground/70 sm:flex-row">
           <span>© 2026 Laterloom. All rights reserved.</span>
           <div className="flex gap-6">
-            <a href="#" className="transition-colors hover:text-foreground">
+            <Link href="/about" className="transition-colors hover:text-foreground">
+              About
+            </Link>
+            <Link href="/privacy" className="transition-colors hover:text-foreground">
               Privacy
-            </a>
-            <a href="#" className="transition-colors hover:text-foreground">
+            </Link>
+            <Link href="/terms" className="transition-colors hover:text-foreground">
               Terms
-            </a>
+            </Link>
           </div>
         </div>
       </footer>
