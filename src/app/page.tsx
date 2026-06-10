@@ -136,7 +136,7 @@ export default function LandingPage() {
               className="mb-6 gap-1.5 border-border/60 bg-card/50 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur-sm"
             >
               <Sparkles className="h-3 w-3 text-primary" />
-              Powered by Aurora DSQL &amp; Vercel · Built for the moments that matter
+              Built with v0 · Aurora DSQL · Vercel · Built for the moments that matter
             </Badge>
             <h1 className="text-balance text-5xl font-bold tracking-tight leading-[1.05] font-heading md:text-7xl">
               Seal today.
@@ -193,7 +193,7 @@ export default function LandingPage() {
               <span className="text-border/60">·</span>
               <span className="flex items-center gap-2 text-muted-foreground/70 font-medium">
                 <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true"><path d="M24 22.525H0l12-21.05 12 21.05z"/></svg>
-                Vercel
+                v0 by Vercel
               </span>
               <span className="text-border/60">·</span>
               <span className="flex items-center gap-2 text-muted-foreground/70 font-medium">

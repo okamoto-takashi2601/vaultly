@@ -126,6 +126,15 @@ export default function AboutPage() {
               The idea was to make that easy. Write it now. Seal it. Let it arrive when it matters.
             </p>
             <p>
+              The initial UI was designed and scaffolded using{" "}
+              <a href="https://v0.dev" target="_blank" rel="noopener noreferrer" className="text-[#d9b76e]/80 hover:text-[#d9b76e] underline underline-offset-2">
+                v0 by Vercel
+              </a>
+              {" "}— which let us go from idea to working interface in hours, not days. The backend
+              is powered by Amazon Aurora DSQL, a distributed serverless SQL database that
+              gives Laterloom the reliability and scale a long-term memory service demands.
+            </p>
+            <p>
               We added the AI Memory Enhancer because the hardest part of writing isn't the words
               — it's knowing where to start. The prompts help you dig deeper than you expected.
               Users tell us they end up writing things they didn't know they wanted to say.
@@ -318,6 +327,7 @@ export default function AboutPage() {
                 <h3 className="font-semibold text-[#f5f2eb] text-sm mb-4">Full stack</h3>
                 <div className="flex flex-wrap gap-2">
                   {[
+                    { label: "v0 by Vercel", color: "text-white/90 border-white/20 bg-white/10" },
                     { label: "Aurora DSQL", color: "text-[#FF9900] border-[#FF9900]/20 bg-[#FF9900]/5" },
                     { label: "Vercel", color: "text-white/80 border-white/10 bg-white/5" },
                     { label: "Next.js 16", color: "text-white/80 border-white/10 bg-white/5" },
