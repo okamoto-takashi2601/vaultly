@@ -48,3 +48,7 @@ next-env.d.ts
 # Lambda build artifacts
 .tmp-lambda/
 lambda.zip
+
+# Claude Code / AI agent config
+AGENTS.md
+CLAUDE.md
