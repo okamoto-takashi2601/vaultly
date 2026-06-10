@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -128,10 +128,13 @@ export default function NewCapsulePage() {
     }
   };
 
-  const minDate = new Date();
-  minDate.setDate(minDate.getDate() + 1);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const minDateStr = `${minDate.getFullYear()}-${pad(minDate.getMonth() + 1)}-${pad(minDate.getDate())}T${pad(minDate.getHours())}:${pad(minDate.getMinutes())}`;
+  const [minDateStr, setMinDateStr] = useState("");
+  useEffect(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    setMinDateStr(`${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`);
+  }, []);
 
   return (
     <div className="p-6 md:p-8 max-w-2xl mx-auto w-full">
