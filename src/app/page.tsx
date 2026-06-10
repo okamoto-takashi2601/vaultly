@@ -203,7 +203,7 @@ export default function LandingPage() {
               <span className="text-border/60">·</span>
               <span className="flex items-center gap-2 text-muted-foreground/70 font-medium">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
-                OpenAI
+                Gemini AI
               </span>
               <span className="text-border/60">·</span>
               <span className="flex items-center gap-2 text-muted-foreground/70 font-medium">

@@ -80,7 +80,7 @@ Violation of these rules may result in immediate account suspension or terminati
   },
   {
     title: "Article 8 — AI Features",
-    body: `Laterloom includes an AI Memory Enhancer feature powered by OpenAI. This feature generates suggestions and enhancements based on your prompts.
+    body: `Laterloom includes an AI Memory Enhancer feature powered by Google Gemini AI. This feature generates suggestions and enhancements based on your prompts.
 
 AI-generated content is provided as-is. We make no guarantees about the accuracy, completeness, or appropriateness of AI-generated suggestions. You are responsible for reviewing and editing any AI-generated content before saving it to your capsule.
 

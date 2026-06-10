@@ -211,7 +211,7 @@ export default function AboutPage() {
 
               {/* Skills */}
               <div className="flex flex-wrap gap-2 mb-6">
-                {["Next.js", "TypeScript", "Supabase", "Tailwind CSS", "Claude AI", "OpenAI", "Multilingual (EN/JA/VI)"].map((s) => (
+                {["Next.js", "TypeScript", "Tailwind CSS", "Gemini AI", "Multilingual (EN/JA/ZH/VI)"].map((s) => (
                   <span
                     key={s}
                     className="rounded-full border border-white/[0.08] bg-[#1c1d2c]/60 px-3 py-1 text-xs text-[#8b8aa0]"
@@ -286,6 +286,7 @@ export default function AboutPage() {
                   exactly as written. Aurora DSQL&apos;s ACID transactions and multi-region
                   architecture make this reliable at any scale, without managing servers.
                 </p>
+
                 <ul className="mt-4 space-y-1.5 text-xs text-[#8b8aa0]/80">
                   {["ACID-compliant distributed transactions", "Serverless — scales to zero", "Multi-region active-active replication", "PostgreSQL-compatible via Prisma ORM"].map((f) => (
                     <li key={f} className="flex items-center gap-2">
@@ -334,7 +335,7 @@ export default function AboutPage() {
                     { label: "Prisma ORM", color: "text-[#5a67d8] border-[#5a67d8]/20 bg-[#5a67d8]/5" },
                     { label: "Clerk Auth", color: "text-[#6c47ff] border-[#6c47ff]/20 bg-[#6c47ff]/5" },
                     { label: "Stripe", color: "text-[#635BFF] border-[#635BFF]/20 bg-[#635BFF]/5" },
-                    { label: "OpenAI", color: "text-emerald-400 border-emerald-400/20 bg-emerald-400/5" },
+                    { label: "Gemini AI", color: "text-[#4285F4] border-[#4285F4]/20 bg-[#4285F4]/5" },
                     { label: "UploadThing (S3)", color: "text-red-400 border-red-400/20 bg-red-400/5" },
                     { label: "TypeScript", color: "text-[#3178c6] border-[#3178c6]/20 bg-[#3178c6]/5" },
                     { label: "Tailwind CSS", color: "text-[#38bdf8] border-[#38bdf8]/20 bg-[#38bdf8]/5" },

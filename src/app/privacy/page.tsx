@@ -45,7 +45,7 @@ const sections = [
 
 **Vercel** — Hosting and deployment infrastructure.
 
-**OpenAI** — Powers the AI Memory Enhancer feature. Prompt content sent to the AI is not stored by us beyond the processing request. Please refer to OpenAI's privacy policy for their data handling practices.
+**Google Gemini AI** — Powers the AI Memory Enhancer feature. Prompt content sent to the AI is not stored by us beyond the processing request. Please refer to Google's privacy policy for their data handling practices.
 
 Each provider operates under their own privacy policy and data protection standards.`,
   },
